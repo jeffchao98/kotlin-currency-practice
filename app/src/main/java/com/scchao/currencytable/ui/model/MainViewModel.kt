@@ -1,4 +1,4 @@
-package com.scchao.currencytable.data.model
+package com.scchao.currencytable.ui.model
 
 import androidx.lifecycle.ViewModel
 

@@ -6,8 +6,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.Spinner
 import com.scchao.currencytable.R
-import com.scchao.currencytable.data.model.MainViewModel
+import com.scchao.currencytable.ui.model.MainViewModel
 
 class MainFragment : Fragment() {
 
@@ -17,11 +19,17 @@ class MainFragment : Fragment() {
 
     private lateinit var viewModel: MainViewModel
 
+    private var inputPrice: EditText? = null
+    private var currencyMenu: Spinner? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return inflater.inflate(R.layout.main_fragment, container, false)
+        val root = inflater.inflate(R.layout.main_fragment, container, false)
+        inputPrice = root.findViewById(R.id.input_price)
+        currencyMenu = root.findViewById(R.id.currency_menu)
+        return root
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
