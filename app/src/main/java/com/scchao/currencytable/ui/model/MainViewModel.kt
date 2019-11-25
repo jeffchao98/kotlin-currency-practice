@@ -1,9 +1,9 @@
 package com.scchao.currencytable.ui.model
 
+import android.os.CountDownTimer
+import android.os.Handler
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.liveData
+import androidx.lifecycle.*
 import com.scchao.currencytable.data.model.CurrencyInfo
 import com.scchao.currencytable.data.model.CurrencyRates
 import com.scchao.currencytable.data.model.CurrencyTransfer
@@ -20,7 +20,37 @@ class MainViewModel(
 ) : ViewModel() {
     // TODO: Implement the ViewModel
 
-    fun getCurrencyData(currencyTypes: CurrencyTypes, rateData: CurrencyRates): CurrencyTransfer {
+    private val trigger = MutableLiveData<Boolean>()
+
+    private val currencyTypesRow = trigger.switchMap { ti ->
+        liveData {
+            var returnData: CurrencyTransfer = CurrencyTransfer()
+            try {
+                val currencyTypes = currencyListRepository.getCurrencyTypes()
+                val rateData = currencyListRepository.getCurrenctRates()
+                returnData = getCurrencyData(currencyTypes, rateData)
+
+            } catch (exception: Throwable) {
+                Log.i("error", exception.message)
+            }
+            emit(returnData)
+        }
+    }
+
+    init {
+        doQueryData()
+    }
+
+    fun readyData(): LiveData<CurrencyTransfer> = currencyTypesRow
+
+    fun doQueryData() {
+        trigger.value = true
+    }
+
+    private fun getCurrencyData(
+        currencyTypes: CurrencyTypes,
+        rateData: CurrencyRates
+    ): CurrencyTransfer {
         var returnData: CurrencyTransfer = CurrencyTransfer()
 
         val rates = rateData.quotes
@@ -41,22 +71,11 @@ class MainViewModel(
                     code = typeKey,
                     name = fullName,
                     rate = rates.get("${sources}${typeKey}") ?: 1.0
-                ))
+                )
+            )
             returnData.keys.add(fullName)
         }
         return returnData
     }
 
-    val currencyTypesRow: LiveData<CurrencyTransfer> = liveData {
-        var returnData: CurrencyTransfer = CurrencyTransfer()
-        try {
-            val currencyTypes = currencyListRepository.getCurrencyTypes()
-            val rateData = currencyListRepository.getCurrenctRates()
-            returnData = getCurrencyData(currencyTypes, rateData)
-
-        } catch (exception: Throwable) {
-            Log.i("error", exception.message)
-        }
-        emit(returnData)
-    }
 }
