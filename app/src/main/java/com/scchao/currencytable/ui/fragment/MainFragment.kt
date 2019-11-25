@@ -1,8 +1,11 @@
 package com.scchao.currencytable.ui.fragment
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -28,8 +31,28 @@ class MainFragment : Fragment() {
     private var gridList: GridView? = null
     private var gridAdapter: GridAdapter? = null
 
+    var scanHandler: Handler? = null
+    private val scanTask = object : Runnable {
+        override fun run() {
+            Log.i("scanTask", "peak")
+            mainViewModel.doQueryData()
+            scanHandler?.postDelayed(this, 1800000)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        scanHandler?.post(scanTask)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        scanHandler?.removeCallbacks(scanTask)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        scanHandler = Handler(Looper.getMainLooper())
     }
 
     override fun onCreateView(
@@ -58,13 +81,14 @@ class MainFragment : Fragment() {
             }
 
         })
-        mainViewModel.currencyTypesRow.observe(this, itemObserver)
+        mainViewModel.readyData().observe(this, ratesObserver)
 
         return root
     }
 
-    private val itemObserver = Observer<CurrencyTransfer> {
+    private val ratesObserver = Observer<CurrencyTransfer> {
         context?.let { itContext ->
+            Log.i("ratesObserver", it.keys.toString())
             val adapter =
                 ArrayAdapter(itContext, android.R.layout.simple_spinner_dropdown_item, it.keys)
             currencyMenu?.adapter = adapter
