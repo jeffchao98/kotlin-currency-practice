@@ -63,6 +63,7 @@ class MainViewModel(
      * 1. If the response data from the currency rate api shows null,
      *    we should return empty CurrencyTransfer because we have no idea about
      *    the most important value rate
+     *
      * 2. If the response data from the currency type ( code v.s. full-name ) api
      *    is the only missing data, in this case, we still can parse and prepare
      *    the CurrencyTransfer for return, however the full name in drop-down labels

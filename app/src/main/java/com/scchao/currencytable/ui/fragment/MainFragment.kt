@@ -34,7 +34,6 @@ class MainFragment : Fragment() {
     var scanHandler: Handler? = null
     private val scanTask = object : Runnable {
         override fun run() {
-            Log.i("scanTask", "peak")
             mainViewModel.fetchData()
             scanHandler?.postDelayed(this, 1800000)
         }
