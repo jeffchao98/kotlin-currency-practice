@@ -9,5 +9,5 @@ val currencyListRepoModule = module {
 
 class CurrencyListRepository (private val currencyApi: CurrencyApi) {
     suspend fun getCurrencyTypes() = currencyApi.getCurrencyTypes()
-    suspend fun getCurrenctRates() = currencyApi.getCurrenctRates()
+    suspend fun getCurrencyRates() = currencyApi.getCurrencyRates()
 }
