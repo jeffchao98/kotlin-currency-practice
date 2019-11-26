@@ -35,7 +35,7 @@ class MainFragment : Fragment() {
     private val scanTask = object : Runnable {
         override fun run() {
             Log.i("scanTask", "peak")
-            mainViewModel.doQueryData()
+            mainViewModel.fetchData()
             scanHandler?.postDelayed(this, 1800000)
         }
     }
@@ -73,22 +73,36 @@ class MainFragment : Fragment() {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                var getString = s?.toString() ?: "1"
-                var getNumber: Double =
-                    if (getString.isEmpty()) 1.0
-                    else getString.toDouble()
-                gridAdapter?.updateTargetPrice(getNumber)
+                val getString = s?.toString() ?: "1"
+                val getNumber: Double = parseInputPrice(getString)
+                mainViewModel.updatePrice(getNumber)
             }
 
         })
         mainViewModel.readyData().observe(this, ratesObserver)
-
+        mainViewModel.getTargetPrice().observe(this, inputPriceObserver)
+        mainViewModel.getStandRate().observe(this, selectCurrencyObserver)
+        inputPrice?.setText("0")
         return root
+    }
+
+    private fun parseInputPrice(text: String): Double {
+        val parseVal: Double =
+            if (text.isEmpty()) 1.0
+            else text.toDoubleOrNull() ?: 1.0
+        return if (parseVal > 0.0) parseVal else 1.0
+    }
+
+    private val inputPriceObserver = Observer<Double> {
+        gridAdapter?.updateTargetPrice(it)
+    }
+
+    private val selectCurrencyObserver = Observer<Double> {
+        gridAdapter?.updateSelectRate(it)
     }
 
     private val ratesObserver = Observer<CurrencyTransfer> {
         context?.let { itContext ->
-            Log.i("ratesObserver", it.keys.toString())
             val adapter =
                 ArrayAdapter(itContext, android.R.layout.simple_spinner_dropdown_item, it.keys)
             currencyMenu?.adapter = adapter
@@ -103,11 +117,14 @@ class MainFragment : Fragment() {
                     pos: Int,
                     id: Long
                 ) {
-                    gridAdapter?.updateSelectRate(it.datas[pos].rate)
+                    mainViewModel.updateRate(it.data[pos].rate)
                 }
             }
             val selectIndex = currencyMenu?.selectedItemPosition ?: 0
-            gridAdapter = GridAdapter(itContext, it.datas, 1.0, it.datas[selectIndex].rate)
+            val selectRate = if (it.data.size > 0) it.data[selectIndex].rate else 0.0
+            val targetPriceText = inputPrice?.let { it.toString() } ?: "1"
+            gridAdapter =
+                GridAdapter(itContext, it.data, parseInputPrice(targetPriceText), selectRate)
             gridList?.adapter = gridAdapter
         }
     }
