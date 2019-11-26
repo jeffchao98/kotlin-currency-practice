@@ -11,5 +11,5 @@ interface CurrencyApi {
     suspend fun getCurrencyTypes(): CurrencyTypes
 
     @GET("/api/live?access_key=${access_token}&format=1")
-    suspend fun getCurrenctRates(): CurrencyRates
+    suspend fun getCurrencyRates(): CurrencyRates
 }

@@ -18,7 +18,7 @@
   - In order to generate `debug` build , execute `./gradlew assembleDebug`
   - If success, you can find the bulild in the folder `${project path}/app/build/outputs/apk/debug` , you will the file `app-debug.apk` as the generated build
 
-## 3-rd party libraries we are using
+## 3rd party libraries
 - [Koin](https://github.com/InsertKoinIO/koin): Integrate the DI
 - [gson](https://github.com/google/gson): Parse the json format we get from the backend api endpoints
 - [Retrofit2](https://square.github.io/retrofit/): In order to implement the logic for call the api endpoints and get the response data
