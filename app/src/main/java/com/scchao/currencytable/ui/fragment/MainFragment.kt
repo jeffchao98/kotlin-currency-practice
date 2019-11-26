@@ -5,7 +5,6 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -30,12 +29,13 @@ class MainFragment : Fragment() {
     private var currencyMenu: Spinner? = null
     private var gridList: GridView? = null
     private var gridAdapter: GridAdapter? = null
+    private var scanHandler: Handler? = null
+    private var emptyState: TextView? = null
 
-    var scanHandler: Handler? = null
+    // Runnable task for run the data fetch logic in every 30-minute
     private val scanTask = object : Runnable {
         override fun run() {
-            Log.i("scanTask", "peak")
-            mainViewModel.doQueryData()
+            mainViewModel.fetchData()
             scanHandler?.postDelayed(this, 1800000)
         }
     }
@@ -63,6 +63,7 @@ class MainFragment : Fragment() {
         inputPrice = root.findViewById(R.id.input_price)
         currencyMenu = root.findViewById(R.id.currency_menu)
         gridList = root.findViewById(R.id.grid_list)
+        emptyState = root.findViewById(R.id.empty_state)
         inputPrice?.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
 
@@ -73,22 +74,35 @@ class MainFragment : Fragment() {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                var getString = s?.toString() ?: "1"
-                var getNumber: Double =
-                    if (getString.isEmpty()) 1.0
-                    else getString.toDouble()
-                gridAdapter?.updateTargetPrice(getNumber)
+                val getString = s?.toString() ?: "1"
+                val getNumber: Double = parseInputPrice(getString)
+                mainViewModel.updatePrice(getNumber)
             }
 
         })
         mainViewModel.readyData().observe(this, ratesObserver)
-
+        mainViewModel.getTargetPrice().observe(this, inputPriceObserver)
+        mainViewModel.getStandRate().observe(this, selectCurrencyObserver)
         return root
+    }
+
+    private fun parseInputPrice(text: String): Double {
+        val parseVal: Double =
+            if (text.isEmpty()) 1.0
+            else text.toDoubleOrNull() ?: 1.0
+        return if (parseVal > 0.0) parseVal else 1.0
+    }
+    //Observer for update the input price to the grid adapter
+    private val inputPriceObserver = Observer<Double> {
+        gridAdapter?.updateTargetPrice(it)
+    }
+    //Observer for update the selected rate to the grid adapter
+    private val selectCurrencyObserver = Observer<Double> {
+        gridAdapter?.updateSelectRate(it)
     }
 
     private val ratesObserver = Observer<CurrencyTransfer> {
         context?.let { itContext ->
-            Log.i("ratesObserver", it.keys.toString())
             val adapter =
                 ArrayAdapter(itContext, android.R.layout.simple_spinner_dropdown_item, it.keys)
             currencyMenu?.adapter = adapter
@@ -103,11 +117,16 @@ class MainFragment : Fragment() {
                     pos: Int,
                     id: Long
                 ) {
-                    gridAdapter?.updateSelectRate(it.datas[pos].rate)
+                    mainViewModel.updateRate(it.data[pos].rate)
                 }
             }
+            val dataSize = it.data.size
+            emptyState?.text = if (dataSize > 0) "" else getText(R.string.search_msg)
             val selectIndex = currencyMenu?.selectedItemPosition ?: 0
-            gridAdapter = GridAdapter(itContext, it.datas, 1.0, it.datas[selectIndex].rate)
+            val selectRate = if (it.data.size > 0) it.data[selectIndex].rate else 0.0
+            val targetPriceText = inputPrice?.let { it.toString() } ?: "1"
+            gridAdapter =
+                GridAdapter(itContext, it.data, parseInputPrice(targetPriceText), selectRate)
             gridList?.adapter = gridAdapter
         }
     }
