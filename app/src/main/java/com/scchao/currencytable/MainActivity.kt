@@ -21,10 +21,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        hideKeyboard(this)
+    }
+
     //Override the dispatchTouchEvent method in Activity for close the softKeyboard
-    //when the EditText view been focused and the non-EditText view been clicked
+    //when the EditText view under focused state and the non-EditText view been clicked
     //Reference: https://stackoverflow.com/a/32149756
-    //When the conditions meet, dismiss the keyboard and clear focus
+    //When the conditions meet, dismiss the keyboard and clear the focus state for EditText
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
         var view = currentFocus
         if (view != null
