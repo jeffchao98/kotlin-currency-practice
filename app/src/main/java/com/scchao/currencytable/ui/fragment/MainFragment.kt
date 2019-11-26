@@ -29,8 +29,10 @@ class MainFragment : Fragment() {
     private var currencyMenu: Spinner? = null
     private var gridList: GridView? = null
     private var gridAdapter: GridAdapter? = null
+    private var scanHandler: Handler? = null
+    private var emptyState: TextView? = null
 
-    var scanHandler: Handler? = null
+    // Runnable task for run the data fetch logic in every 30-minute
     private val scanTask = object : Runnable {
         override fun run() {
             mainViewModel.fetchData()
@@ -61,6 +63,7 @@ class MainFragment : Fragment() {
         inputPrice = root.findViewById(R.id.input_price)
         currencyMenu = root.findViewById(R.id.currency_menu)
         gridList = root.findViewById(R.id.grid_list)
+        emptyState = root.findViewById(R.id.empty_state)
         inputPrice?.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
 
@@ -117,6 +120,8 @@ class MainFragment : Fragment() {
                     mainViewModel.updateRate(it.data[pos].rate)
                 }
             }
+            val dataSize = it.data.size
+            emptyState?.text = if (dataSize > 0) "" else getText(R.string.search_msg)
             val selectIndex = currencyMenu?.selectedItemPosition ?: 0
             val selectRate = if (it.data.size > 0) it.data[selectIndex].rate else 0.0
             val targetPriceText = inputPrice?.let { it.toString() } ?: "1"

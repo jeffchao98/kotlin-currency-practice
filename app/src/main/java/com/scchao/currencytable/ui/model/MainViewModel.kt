@@ -97,7 +97,7 @@ class MainViewModel(
                 if (rates.containsKey(fullKey)) {
                     var fullName = typeKey
                     if (currencies != null) {
-                        fullName = currencies.get(typeKey) ?: typeKey
+                        fullName = "(${typeKey})${currencies.get(typeKey) ?: ""}"
                     }
                     // Add the CurrencyInfo object in the data list for the grid list
                     returnData.data.add(
