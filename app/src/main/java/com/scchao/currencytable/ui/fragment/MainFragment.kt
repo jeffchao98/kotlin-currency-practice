@@ -92,11 +92,11 @@ class MainFragment : Fragment() {
             else text.toDoubleOrNull() ?: 1.0
         return if (parseVal > 0.0) parseVal else 1.0
     }
-
+    //Observer for update the input price to the grid adapter
     private val inputPriceObserver = Observer<Double> {
         gridAdapter?.updateTargetPrice(it)
     }
-
+    //Observer for update the selected rate to the grid adapter
     private val selectCurrencyObserver = Observer<Double> {
         gridAdapter?.updateSelectRate(it)
     }
