@@ -7,6 +7,8 @@
   - The input box for input the target price, which will reflect on the price value of the currency cells in the grid table
   - In every 30-min, the app will automatically refresh the currency data
 
+![outline screenshot](/res/outline_screenshot.png)
+
 ## Setup
 - Make sure you have the latest version of the Android Studio and the Android SDK in your machine
 
