@@ -1,5 +1,11 @@
 # CurrencyLayer Practice Project Change Log
 
+## Version 1.0.1
+- Date: 2019-11-27
+- Version code: 4
+- Memo:
+  - Security enhancement ( #18 )
+
 ## Version 1.0
 - Date: 2019-11-26
 - Version code: 3

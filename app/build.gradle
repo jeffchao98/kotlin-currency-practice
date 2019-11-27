@@ -6,6 +6,19 @@ apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'kotlin-kapt'
 
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def currencyToken = localProperties.getProperty('CURRENCYLAYER_TOKEN')
+if (currencyToken == null) {
+    currencyToken = '""'
+}
+
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
@@ -13,9 +26,10 @@ android {
         applicationId "com.scchao.currencytable"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 3
-        versionName "1.0"
+        versionCode 4
+        versionName "1.0.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "CURRENCY_TOKEN", currencyToken)
     }
     buildTypes {
         debug {
