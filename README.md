@@ -11,6 +11,12 @@
 
 ## Setup
 - Make sure you have the latest version of the Android Studio and the Android SDK in your machine
+- Because we fetch the currency rate data fron CurrencyLayer api, go through the following steps before you start compile the code
+  - Prepare the access token from [CurrencyLayer](https://currencylayer.com/) ( the token from free plan is OK )
+  - Make sure your CurrencyLayer access token been placed in `${the project path}/gradle.properties` or `~/.gradle/gradle.properties` as the following line
+```Gradle
+CURRENCYLAYER_TOKEN = "${your CurrencyLayer access token}"
+```
 
 ## How to generate the build
 - Like the other Android projects, you can generate your build via AndroidStudio IDE
