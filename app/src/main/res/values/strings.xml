@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Currency Table</string>
     <string name="input_hint">Please input the price</string>
-    <string name="search_msg">Loading the currency data...</string>
+    <string name="search_msg">Trying fetch rate...</string>
 </resources>
