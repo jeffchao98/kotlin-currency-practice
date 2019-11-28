@@ -2,6 +2,7 @@ package com.scchao.currencytable
 
 import android.app.Application
 import com.scchao.currencytable.api.networkModule
+import com.scchao.currencytable.data.preferencesModule
 import com.scchao.currencytable.data.repository.currencyDataRepoModule
 import com.scchao.currencytable.data.repository.currencyListRepoModule
 import com.scchao.currencytable.data.room.dbSetupModule
@@ -20,7 +21,8 @@ class MainApplication : Application() {
                     networkModule,
                     mainViewModule,
                     dbSetupModule(),
-                    currencyDataRepoModule
+                    currencyDataRepoModule,
+                    preferencesModule
                 )
             )
         }

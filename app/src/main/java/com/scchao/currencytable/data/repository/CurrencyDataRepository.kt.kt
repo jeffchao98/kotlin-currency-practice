@@ -14,4 +14,5 @@ class CurrencyDataRepository(private val rateDao: RateDao) {
     suspend fun loadRateList(): List<CurrencyInfo> = rateDao.getAllList()
     suspend fun updateRate(saveRate: CurrencyInfo) = rateDao.updateRate(saveRate)
     suspend fun findRate(code: String) = rateDao.findRate(code)
+    suspend fun updateAllRate(saveList: List<CurrencyInfo>) = rateDao.updateAllRate(saveList)
 }

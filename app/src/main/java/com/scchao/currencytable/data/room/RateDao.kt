@@ -15,5 +15,8 @@ interface RateDao {
     suspend fun findRate(typeCode: String): CurrencyInfo
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun updateRate(rateRata: CurrencyInfo)
+    suspend fun updateRate(rateData: CurrencyInfo)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateAllRate(rateList: List<CurrencyInfo>)
 }
