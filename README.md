@@ -30,6 +30,7 @@ CURRENCYLAYER_TOKEN = "${your CurrencyLayer access token}"
 - [Koin](https://github.com/InsertKoinIO/koin): Integrate the DI
 - [gson](https://github.com/google/gson): Parse the json format we get from the backend api endpoints
 - [Retrofit2](https://square.github.io/retrofit/): In order to implement the logic for call the api endpoints and get the response data
+- [Room](https://developer.android.com/topic/libraries/architecture/room): Keep the fetched rate data in the storage
 
 ## Available builds
 - We use AppCenter to distrubute the build for review and test
