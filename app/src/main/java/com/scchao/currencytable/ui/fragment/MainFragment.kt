@@ -3,13 +3,13 @@ package com.scchao.currencytable.ui.fragment
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.Editable
-import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.widget.AppCompatSpinner
+import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.Observer
 import com.scchao.currencytable.R
 import com.scchao.currencytable.data.model.CurrencyTransfer
@@ -26,7 +26,7 @@ class MainFragment : Fragment() {
     private val mainViewModel: MainViewModel by viewModel()
 
     private var inputPrice: EditText? = null
-    private var currencyMenu: Spinner? = null
+    private var currencyMenu: AppCompatSpinner? = null
     private var gridList: GridView? = null
     private var gridAdapter: GridAdapter? = null
     private var scanHandler: Handler? = null
@@ -64,22 +64,11 @@ class MainFragment : Fragment() {
         currencyMenu = root.findViewById(R.id.currency_menu)
         gridList = root.findViewById(R.id.grid_list)
         emptyState = root.findViewById(R.id.empty_state)
-        inputPrice?.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val getString = s?.toString() ?: "1"
-                val getNumber: Double = parseInputPrice(getString)
-                mainViewModel.updatePrice(getNumber)
-            }
-
-        })
+        inputPrice?.doOnTextChanged { text, start, count, after ->
+            val getString = text?.toString() ?: "1"
+            val getNumber: Double = parseInputPrice(getString)
+            mainViewModel.updatePrice(getNumber)
+        }
         mainViewModel.readyData().observe(this, ratesObserver)
         mainViewModel.getTargetPrice().observe(this, inputPriceObserver)
         mainViewModel.getStandRate().observe(this, selectCurrencyObserver)
@@ -92,6 +81,7 @@ class MainFragment : Fragment() {
             else text.toDoubleOrNull() ?: 1.0
         return if (parseVal > 0.0) parseVal else 1.0
     }
+
     //Observer for update the input price to the grid adapter
     private val inputPriceObserver = Observer<Double> {
         gridAdapter?.updateTargetPrice(it)
@@ -104,7 +94,11 @@ class MainFragment : Fragment() {
     private val ratesObserver = Observer<CurrencyTransfer> {
         context?.let { itContext ->
             val adapter =
-                ArrayAdapter(itContext, android.R.layout.simple_spinner_dropdown_item, it.keys)
+                ArrayAdapter(
+                    itContext,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    it.getFullNameKeys()
+                )
             currencyMenu?.adapter = adapter
             currencyMenu?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onNothingSelected(parent: AdapterView<*>?) {
