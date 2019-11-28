@@ -1,6 +1,8 @@
 package com.scchao.currencytable.ui.model
 
+import android.content.SharedPreferences
 import android.util.Log
+import androidx.core.content.edit
 import androidx.lifecycle.*
 import com.scchao.currencytable.data.model.CurrencyInfo
 import com.scchao.currencytable.data.model.CurrencyRates
@@ -9,14 +11,16 @@ import com.scchao.currencytable.data.model.CurrencyTypes
 import com.scchao.currencytable.data.repository.CurrencyDataRepository
 import com.scchao.currencytable.data.repository.CurrencyListRepository
 import org.koin.dsl.module
+import java.util.*
 
 val mainViewModule = module {
-    factory { MainViewModel(get(), get()) }
+    factory { MainViewModel(get(), get(), get()) }
 }
 
 class MainViewModel(
     private val currencyListRepository: CurrencyListRepository,
-    private val currencyDataRepository: CurrencyDataRepository
+    private val currencyDataRepository: CurrencyDataRepository,
+    private val sharedPreferences: SharedPreferences
 ) : ViewModel() {
     // TODO: Implement the ViewModel
 
@@ -28,20 +32,32 @@ class MainViewModel(
         liveData {
             var returnData: CurrencyTransfer = CurrencyTransfer()
             try {
-                val loadData = currencyDataRepository.loadRateList()
-                val currencyTypes = currencyListRepository.getCurrencyTypes()
-                val rateData = currencyListRepository.getCurrencyRates()
-                returnData = getCurrencyData(currencyTypes, rateData)
+                val lastSave = sharedPreferences.getLong("logTime", -1)
+                Log.i("MainViewModel", "Last fetch time: ${lastSave}")
+                val period = 30 * 60 * 1000
+                val logTime = Calendar.getInstance().time.time
+                Log.i("MainViewModel", "was ${logTime - lastSave} millisecond before")
+
+                if ((lastSave + period) > logTime) {
+                    // If the last time successfully fetch the data was less than 30-minutes ago,
+                    // get the data from Room
+                    Log.i("MainViewModel", "reload data")
+                    returnData.data.addAll(currencyDataRepository.loadRateList())
+                } else {
+                    // If the last time successfully fetch the data was more than 30-minutes ago,
+                    // fetch the data from api
+                    Log.i("MainViewModel", "fetch data")
+                    val currencyTypes = currencyListRepository.getCurrencyTypes()
+                    val rateData = currencyListRepository.getCurrencyRates()
+                    returnData = assembleCurrencyData(currencyTypes, rateData)
+                }
+
 
             } catch (exception: Throwable) {
                 Log.i("error", exception.message)
             }
             emit(returnData)
         }
-    }
-
-    init {
-        fetchData()
     }
 
     fun readyData(): LiveData<CurrencyTransfer> = currencyTypesRow
@@ -60,7 +76,7 @@ class MainViewModel(
         targetRate.value = rate
     }
 
-    /* Memo about getCurrencyData method
+    /* Memo about assembleCurrencyData method
      * In case something goes wrong when fetch the currency data
      * The following rules are prepared for the exceptions like internet error
      * 1. If the response data from the currency rate api shows null,
@@ -73,7 +89,7 @@ class MainViewModel(
      *    will be replaced by the short code
      */
 
-    private suspend fun getCurrencyData(
+    private suspend fun assembleCurrencyData(
         currencyTypes: CurrencyTypes,
         rateData: CurrencyRates
     ): CurrencyTransfer {
@@ -108,11 +124,18 @@ class MainViewModel(
                         name = fullName,
                         rate = rates.get(fullKey) ?: 1.0
                     )
-                    currencyDataRepository.updateRate(currencyInfo)
                     returnData.data.add(currencyInfo)
                 }
             }
+            //Save all of the assembled data in the Room DB
+            currencyDataRepository.updateAllRate(returnData.data)
+
+            // Log the time in SharedPreferences
+            val logTime = Calendar.getInstance().time.time
+            sharedPreferences.edit { putLong("logTime", logTime) }
+            Log.i("MainViewModule", "Fetched data saved at ${logTime}")
         }
+
         return returnData
     }
 
