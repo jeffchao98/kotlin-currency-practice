@@ -94,7 +94,11 @@ class MainFragment : Fragment() {
     private val ratesObserver = Observer<CurrencyTransfer> {
         context?.let { itContext ->
             val adapter =
-                ArrayAdapter(itContext, android.R.layout.simple_spinner_dropdown_item, it.keys)
+                ArrayAdapter(
+                    itContext,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    it.getFullNameKeys()
+                )
             currencyMenu?.adapter = adapter
             currencyMenu?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onNothingSelected(parent: AdapterView<*>?) {
