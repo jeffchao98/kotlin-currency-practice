@@ -6,15 +6,17 @@ import com.scchao.currencytable.data.model.CurrencyInfo
 import com.scchao.currencytable.data.model.CurrencyRates
 import com.scchao.currencytable.data.model.CurrencyTransfer
 import com.scchao.currencytable.data.model.CurrencyTypes
+import com.scchao.currencytable.data.repository.CurrencyDataRepository
 import com.scchao.currencytable.data.repository.CurrencyListRepository
 import org.koin.dsl.module
 
 val mainViewModule = module {
-    factory { MainViewModel(get()) }
+    factory { MainViewModel(get(), get()) }
 }
 
 class MainViewModel(
-    private val currencyListRepository: CurrencyListRepository
+    private val currencyListRepository: CurrencyListRepository,
+    private val currencyDataRepository: CurrencyDataRepository
 ) : ViewModel() {
     // TODO: Implement the ViewModel
 
@@ -26,6 +28,7 @@ class MainViewModel(
         liveData {
             var returnData: CurrencyTransfer = CurrencyTransfer()
             try {
+                val loadData = currencyDataRepository.loadRateList()
                 val currencyTypes = currencyListRepository.getCurrencyTypes()
                 val rateData = currencyListRepository.getCurrencyRates()
                 returnData = getCurrencyData(currencyTypes, rateData)
@@ -70,7 +73,7 @@ class MainViewModel(
      *    will be replaced by the short code
      */
 
-    private fun getCurrencyData(
+    private suspend fun getCurrencyData(
         currencyTypes: CurrencyTypes,
         rateData: CurrencyRates
     ): CurrencyTransfer {
@@ -100,13 +103,13 @@ class MainViewModel(
                         fullName = currencies.get(typeKey) ?: ""
                     }
                     // Add the CurrencyInfo object in the data list for the grid list
-                    returnData.data.add(
-                        CurrencyInfo(
-                            code = typeKey,
-                            name = fullName,
-                            rate = rates.get(fullKey) ?: 1.0
-                        )
+                    val currencyInfo = CurrencyInfo(
+                        code = typeKey,
+                        name = fullName,
+                        rate = rates.get(fullKey) ?: 1.0
                     )
+                    currencyDataRepository.updateRate(currencyInfo)
+                    returnData.data.add(currencyInfo)
                 }
             }
         }
