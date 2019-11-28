@@ -44,12 +44,22 @@ android {
     dataBinding {
         enabled = true
     }
+    packagingOptions {
+        exclude 'META-INF/atomicfu.kotlin_module'
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.cardview:cardview:1.0.0'
+
+    implementation "androidx.room:room-runtime:$roomVersion"
+    implementation "androidx.room:room-ktx:$roomVersion"
+    kapt "androidx.room:room-compiler:$roomVersion"
+    androidTestImplementation "androidx.room:room-testing:$roomVersion"
+
+    implementation "com.github.kizitonwose.time:time-android:1.0.3"
 
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
