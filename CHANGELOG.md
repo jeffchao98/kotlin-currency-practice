@@ -1,5 +1,12 @@
 # CurrencyLayer Practice Project Change Log
 
+## Version 1.1.0
+- Date: 2019-11-28
+- Version code: 5
+- Memo:
+  - Enhance the list data get logic for limit more bandwidth usage ( #21 )
+  - Minor fix
+
 ## Version 1.0.1
 - Date: 2019-11-27
 - Version code: 4
