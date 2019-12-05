@@ -36,7 +36,7 @@ class MainFragment : Fragment() {
     private val scanTask = object : Runnable {
         override fun run() {
             mainViewModel.fetchData()
-            scanHandler?.postDelayed(this, 1800000)
+            scanHandler?.postDelayed(this, 1810000)
         }
     }
 
