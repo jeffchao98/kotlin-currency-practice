@@ -1,5 +1,11 @@
 # CurrencyLayer Practice Project Change Log
 
+## Version 1.1.1
+- Date: 2019-12-05
+- Version code: 6
+- Memo:
+  - Modified the foreground timer period ( #24 )
+
 ## Version 1.1.0
 - Date: 2019-11-28
 - Version code: 5
